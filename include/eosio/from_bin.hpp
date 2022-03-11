@@ -52,16 +52,12 @@ void varuint64_from_bin(uint64_t& dest, S& stream) {
    } while (b & 0x80);
 }
 
-// zig-zag encoding
 template <typename S>
-void varint32_from_bin(int32_t& result, S& stream)
+uint64_t varuint64_from_bin(S& stream)
 {
-   uint32_t v;
-   varuint32_from_bin(v, stream);
-   if (v & 1)
-      result = ((~v) >> 1) | 0x8000'0000;
-   else
-      result = v >> 1;
+   uint64_t result = 0;
+   varuint64_from_bin(result, stream);
+   return result;
 }
 
 // signed leb128 encoding
@@ -97,19 +93,6 @@ template <typename S>
 int64_t sleb32_from_bin(S& stream)
 {
    return sleb_from_bin<int32_t>(stream);
-}
-
-template <typename T, typename S>
-void from_bin_assoc(T& v, S& stream)
-{
-   uint32_t size;
-   varuint32_from_bin(size, stream);
-   for (size_t i = 0; i < size; ++i)
-   {
-      typename T::value_type elem;
-      from_bin(elem, stream);
-      v.emplace(elem);
-   }
 }
 
 template <typename S>

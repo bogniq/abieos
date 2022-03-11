@@ -44,6 +44,21 @@ void varuint32_to_bin(uint64_t val, S& stream) {
    } while (val);
 }
 
+// signed leb128 encoding
+template <typename S>
+void sleb64_to_bin(int64_t val, S& stream)
+{
+   bool done = false;
+   while (!done)
+   {
+      uint8_t b = val & 0x7f;
+      done = (val >> 6) == (val >> 7);
+      val >>= 7;
+      b |= (!done << 7);
+      stream.write(b);
+   }
+}
+
 inline void push_varuint32(std::vector<char>& bin, uint32_t v) {
    vector_stream st{ bin };
    varuint32_to_bin(v, st);
